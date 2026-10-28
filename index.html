@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pause</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --bg:#f4f1ea; --ink:#2b2a27; --muted:#7a766c; --accent:#5d7a6a; --ring:#c9d6cc; --btn:#2b2a27; --btn-ink:#f4f1ea; --card:#ebe7dd;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#16171a; --ink:#e9e6df; --muted:#8d8a83; --accent:#8fb4a0; --ring:#2c3a33; --btn:#e9e6df; --btn-ink:#16171a; --card:#202226; }
+  }
+  *{box-sizing:border-box;margin:0}
+  html,body{min-height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font:18px/1.5 ui-serif, Georgia, "Iowan Old Style", serif;
+    display:flex; align-items:center; justify-content:center; min-height:100vh;
+    padding:24px 16px; -webkit-font-smoothing:antialiased;
+  }
+  main{width:100%; max-width:440px; text-align:center}
+  section{display:none; animation:fade .6s ease}
+  section.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  h1{font-weight:400; font-size:30px; letter-spacing:-.01em; margin-bottom:12px}
+  p{color:var(--muted); margin-bottom:24px}
+  .small{font-size:14px}
+  .ui{font-family:-apple-system, system-ui, sans-serif}
+  textarea{
+    width:100%; min-height:96px; resize:none; border:1px solid var(--ring); border-radius:12px;
+    background:transparent; color:var(--ink); font:inherit; padding:14px; margin-bottom:20px; outline:none;
+  }
+  textarea:focus{border-color:var(--accent)}
+  button{
+    font:16px/1 -apple-system, system-ui, sans-serif; border:0; border-radius:999px;
+    padding:15px 26px; cursor:pointer; background:var(--btn); color:var(--btn-ink); width:100%;
+  }
+  button.ghost{background:transparent; color:var(--muted); margin-top:10px}
+  button.alt{
+    background:var(--card); color:var(--ink); border-radius:14px; text-align:left;
+    padding:16px 18px; margin-bottom:10px; line-height:1.35;
+  }
+  button.alt span{display:block; color:var(--muted); font-size:14px; margin-top:3px}
+  .hide{visibility:hidden}
+
+  /* Reframe: dominoes */
+  .ripple{text-align:left; margin:8px 0 28px; min-height:260px}
+  .ripple div{opacity:0; transform:translateX(-6px); transition:opacity .8s ease, transform .8s ease; padding:7px 0 7px 16px; border-left:2px solid var(--ring)}
+  .ripple div.on{opacity:1; transform:none}
+  .ripple div.last{border-left-color:var(--accent); color:var(--ink); font-style:italic}
+  .ripple .time{font:13px -apple-system, system-ui, sans-serif; color:var(--muted); font-variant-numeric:tabular-nums; display:block}
+
+  /* Breath */
+  .orb-wrap{height:240px; display:flex; align-items:center; justify-content:center; margin:8px 0 16px}
+  .orb{
+    width:90px; height:90px; border-radius:50%;
+    background:radial-gradient(circle at 40% 35%, var(--accent), var(--ring));
+    transform:scale(1); transition:transform 4s ease-in-out;
+  }
+  .orb.in{transform:scale(2.3)}
+  .cue{font-size:22px; margin-bottom:6px; min-height:33px}
+  .count{font:15px -apple-system, system-ui, sans-serif; color:var(--muted); font-variant-numeric:tabular-nums}
+
+  blockquote{
+    border-left:3px solid var(--accent); text-align:left; padding:6px 0 6px 14px;
+    margin:0 0 24px; color:var(--ink); font-style:italic;
+  }
+  .divider{font:13px -apple-system, system-ui, sans-serif; color:var(--muted); margin:22px 0 12px; text-transform:uppercase; letter-spacing:.08em}
+</style>
+</head>
+<body>
+<main>
+
+  <!-- 1. Intention -->
+  <section id="s1" class="on">
+    <h1>Pause.</h1>
+    <p>You typed “sub.” Before anything else: what are you hoping to find there right now?</p>
+    <textarea id="why" placeholder="Be honest. “Bored” and “avoiding something” are fine answers."></textarea>
+    <button id="toReframe">Next</button>
+    <p class="small ui" id="tally" style="margin-top:22px"></p>
+  </section>
+
+  <!-- 2. Reframe: second-order consequences -->
+  <section id="s2">
+    <h1>Follow it forward.</h1>
+    <div class="ripple" id="ripple"></div>
+    <button id="toBreathe" class="hide">I see it</button>
+  </section>
+
+  <!-- 3. 30-second breath -->
+  <section id="s3">
+    <div class="orb-wrap"><div class="orb" id="orb"></div></div>
+    <div class="cue" id="cue">Breathe in</div>
+    <div class="count" id="count">30</div>
+  </section>
+
+  <!-- 4. The question, with replacements -->
+  <section id="s4">
+    <h1>Do you really want Substack?</h1>
+    <div id="echo"></div>
+    <div class="divider">Or replace it</div>
+    <button class="alt" data-r="create">Make something<span>Write the post instead of reading one.</span></button>
+    <button class="alt" data-r="move">Move<span>The run or session you’ve been putting off.</span></button>
+    <button class="alt" data-r="read">Read a real book<span>One chapter. Phone in another room.</span></button>
+    <button class="ghost" id="yes">Yes, I really want Substack</button>
+  </section>
+
+  <!-- 5. Walked away -->
+  <section id="s5">
+    <h1 id="doneTitle">Nice.</h1>
+    <p id="doneText">That was the hard part. Close this tab.</p>
+  </section>
+
+</main>
+<script>
+  const DEST = "https://substack.com/home";
+  const SECONDS = 30;
+  const $ = id => document.getElementById(id);
+  const show = id => { document.querySelectorAll("section").forEach(s => s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0,0); };
+
+  // Small per-browser tally so you can see your own pattern.
+  const today = new Date().toISOString().slice(0,10);
+  let log = {};
+  try { log = JSON.parse(localStorage.getItem("pause-log") || "{}"); } catch(e) {}
+  const t = Object.assign({visits:0, went:0, replaced:0}, log[today]);
+  t.visits++; log[today] = t;
+  const save = () => { try { localStorage.setItem("pause-log", JSON.stringify(log)); } catch(e) {} };
+  save();
+  if (t.visits > 1) $("tally").textContent = `Visit #${t.visits} today · went ${t.went} · replaced ${t.replaced}`;
+
+  $("toReframe").onclick = () => { show("s2"); reframe(); };
+
+  // Second-order consequences, on your actual clock.
+  function reframe(){
+    const fmt = m => new Date(Date.now() + m*60000).toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+    const steps = [
+      [0,   "You open one post."],
+      [5,   "Then the comments. Then a “recommended for you.”"],
+      [20,  "Then another writer. Then their back catalog."],
+      [50,  "“Five more minutes” became fifty."],
+      [90,  "You’ve read a lot. You remember almost none of it."],
+      [null,"What were you going to do with that time instead?"]
+    ];
+    const box = $("ripple");
+    box.innerHTML = "";
+    steps.forEach(([m, text], i) => {
+      const d = document.createElement("div");
+      if (m === null) d.className = "last";
+      else { const s = document.createElement("span"); s.className = "time"; s.textContent = fmt(m); d.appendChild(s); }
+      d.appendChild(document.createTextNode(text));
+      box.appendChild(d);
+      setTimeout(() => d.classList.add("on"), 400 + i * 1800);
+    });
+    setTimeout(() => $("toBreathe").classList.remove("hide"), 400 + steps.length * 1800);
+  }
+
+  $("toBreathe").onclick = () => { show("s3"); breathe(); };
+
+  function breathe(){
+    const orb = $("orb"), cue = $("cue"), count = $("count");
+    let left = SECONDS, inhale = true;
+    const flip = () => { orb.classList.toggle("in", inhale); cue.textContent = inhale ? "Breathe in" : "Breathe out"; inhale = !inhale; };
+    flip();
+    const phase = setInterval(flip, 4000);
+    // Only counts down while the page is actually in front of you.
+    const tick = setInterval(() => {
+      if (document.hidden) return;
+      left--; count.textContent = left;
+      if (left <= 0){
+        clearInterval(tick); clearInterval(phase);
+        const why = $("why").value.trim();
+        $("echo").innerHTML = why
+          ? `<p class="small" style="margin-bottom:8px">You said you came for:</p><blockquote></blockquote>`
+          : `<p>You didn’t say why. That might be the answer.</p>`;
+        if (why) $("echo").querySelector("blockquote").textContent = why;
+        show("s4");
+      }
+    }, 1000);
+  }
+
+  const done = {
+    create: ["Go make it.", "Open a blank page. Ten minutes, no editing. Creation over consumption."],
+    move:   ["Go move.",    "Shoes on. The hard part was this tab."],
+    read:   ["Go read.",    "One chapter. Leave the phone here."]
+  };
+  document.querySelectorAll("button.alt").forEach(b => b.onclick = () => {
+    const [title, text] = done[b.dataset.r];
+    $("doneTitle").textContent = title; $("doneText").textContent = text;
+    t.replaced++; save(); show("s5");
+  });
+
+  $("yes").onclick = () => { t.went++; save(); location.replace(DEST); };
+</script>
+</body>
+</html>
